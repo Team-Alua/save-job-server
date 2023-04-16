@@ -1,9 +1,14 @@
 import asyncio
-async def handler(reader, writer):
-    print("Client connected")
-    writer.write(b"abc")
-    # client_msg = await reader.readuntil(seperator=b'\r\L')
+import pathlib
+import inspect
+import jm
+jobManager = jm.JobManager()
 
+async def handler(reader, writer):
+    client_request = await reader.readuntil(seperator=b'\r\L')
+    client_request = json.loads(client_request.decode('utf8')) 
+    path = client_request.get("path", "/DNE")
+    await jobManager.process(path, client_request, writer)
     writer.close()
     await writer.wait_closed()
 
